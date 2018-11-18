@@ -1,0 +1,19 @@
+var NAVTREEINDEX26 =
+{
+"unionSHFT__INSTRUCTION.html#a470e8934caaeb831f0a033c51830a1f2":[3,0,143,0],
+"unionSHFT__INSTRUCTION.html#a5a1ac4c076a066afeb192bfe0e7a7e97":[3,0,143,1],
+"unionSUB__INSTRUCTION.html":[3,0,152],
+"unionSUB__INSTRUCTION.html#a324ea43c874f499a3f195e8a27c9a45c":[3,0,152,1],
+"unionSUB__INSTRUCTION.html#aa165d7d63ba986c2030c7a3b34afcf64":[3,0,152,0],
+"unionTI__Fee__StatusWordType__UN.html":[3,0,160],
+"unionTI__Fee__StatusWordType__UN.html#af11d76c7f2bee65c99f96d2fb466976d":[3,0,160,0],
+"unionWCAPE__INSTRUCTION.html":[3,0,168],
+"unionWCAPE__INSTRUCTION.html#a0724f15a8c8a936c8e51d54ed9bcd37f":[3,0,168,1],
+"unionWCAPE__INSTRUCTION.html#a34adcb9b452793c19c6cbeabd220f229":[3,0,168,0],
+"unionWCAP__INSTRUCTION.html":[3,0,166],
+"unionWCAP__INSTRUCTION.html#ad7bd6481887bfff1600c52d7d5162dbf":[3,0,166,0],
+"unionWCAP__INSTRUCTION.html#ae365c1e5aaa2c0a3e38db88a323b6984":[3,0,166,1],
+"unionXOR__INSTRUCTION.html":[3,0,175],
+"unionXOR__INSTRUCTION.html#a515e16be52644b6b09af7d85c78fd289":[3,0,175,0],
+"unionXOR__INSTRUCTION.html#a964d73935b539ac2c02df876fbba8620":[3,0,175,1]
+};
