@@ -4,33 +4,21 @@
   Jim Lindblom @ SparkFun Electronics
   Original Creation Date: February 27, 2015
 https://github.com/sparkfun/LSM9DS1_Breakout
-
 This file prototypes the LSM9DS1 class, implemented in SFE_LSM9DS1.cpp. In
 addition, it defines every register in the LSM9DS1 (both the Gyro and Accel/
 Magnetometer registers).
-
-Development environment specifics:
-IDE: Arduino 1.6.0
-Hardware Platform: Arduino Uno
-LSM9DS1 Breakout Version: 1.0
 
 This code is beerware; if you see me (or any other SparkFun employee) at the
 local, and you've found our code helpful, please buy us a round!
 
 Distributed as-is; no warranty is given.
  ******************************************************************************/
-#ifndef __SparkFunLSM9DS1_H__
-#define __SparkFunLSM9DS1_H__
-
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#include "pins_arduino.h"
-#endif
+#ifndef LSM9DS1_H
+#define LSM9DS1_H
 
 #include "LSM9DS1_Registers.h"
 #include "LSM9DS1_Types.h"
+#include "i2c.h"
 
 #define LSM9DS1_AG_ADDR(sa0)	((sa0) == 0 ? 0x6A : 0x6B)
 #define LSM9DS1_M_ADDR(sa1)		((sa1) == 0 ? 0x1C : 0x1E)

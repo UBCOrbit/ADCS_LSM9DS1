@@ -10,28 +10,15 @@ from higher level stuff, like reading/writing LSM9DS1 registers to low-level,
 hardware reads and writes. Both SPI and I2C handler functions can be found
 towards the bottom of this file.
 
-Development environment specifics:
-IDE: Arduino 1.6
-Hardware Platform: Arduino Uno
-LSM9DS1 Breakout Version: 1.0
-
 This code is beerware; if you see me (or any other SparkFun employee) at the
 local, and you've found our code helpful, please buy us a round!
 
 Distributed as-is; no warranty is given.
  ******************************************************************************/
 
-#include "SparkFunLSM9DS1.h"
+#include "LSM9DS1.hpp"
 #include "LSM9DS1_Registers.h"
 #include "LSM9DS1_Types.h"
-#include <Wire.h> // Wire library is used for I2C
-#include <SPI.h>  // SPI library is used for...SPI.
-
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
 
 // Sensor Sensitivity Constants
 // Values set according to the typical specifications provided in
@@ -826,13 +813,13 @@ void LSM9DS1::calcmRes()
     }	
 }
 
-void LSM9DS1::configInt(interrupt_select interrupt, uint8_t generator,
+void LSM9DS1::configInt(interrupt_select itrpt, uint8_t generator,
         h_lactive activeLow, pp_od pushPull)
 {
     // Write to INT1_CTRL or INT2_CTRL. [interupt] should already be one of
     // those two values.
     // [generator] should be an OR'd list of values from the interrupt_generators enum
-    xgWriteByte(interrupt, generator);
+    xgWriteByte(itrpt, generator);
 
     // Configure CTRL_REG8
     uint8_t temp;
@@ -1089,108 +1076,145 @@ uint8_t LSM9DS1::mReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
     return -1;
 }
 
-void LSM9DS1::initSPI()
-{
-    pinMode(_xgAddress, OUTPUT);
-    digitalWrite(_xgAddress, HIGH);
-    pinMode(_mAddress, OUTPUT);
-    digitalWrite(_mAddress, HIGH);
-
-    SPI.begin();
-    // Maximum SPI frequency is 10MHz, could divide by 2 here:
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
-    // Data is read and written MSb first.
-    SPI.setBitOrder(MSBFIRST);
-    // Data is captured on rising edge of clock (CPHA = 0)
-    // Base value of the clock is HIGH (CPOL = 1)
-    SPI.setDataMode(SPI_MODE0);
-}
-
-void LSM9DS1::SPIwriteByte(uint8_t csPin, uint8_t subAddress, uint8_t data)
-{
-    digitalWrite(csPin, LOW); // Initiate communication
-
-    // If write, bit 0 (MSB) should be 0
-    // If single write, bit 1 should be 0
-    SPI.transfer(subAddress & 0x3F); // Send Address
-    SPI.transfer(data); // Send data
-
-    digitalWrite(csPin, HIGH); // Close communication
-}
-
-uint8_t LSM9DS1::SPIreadByte(uint8_t csPin, uint8_t subAddress)
-{
-    uint8_t temp;
-    // Use the multiple read function to read 1 byte. 
-    // Value is returned to `temp`.
-    SPIreadBytes(csPin, subAddress, &temp, 1);
-    return temp;
-}
-
-uint8_t LSM9DS1::SPIreadBytes(uint8_t csPin, uint8_t subAddress,
-        uint8_t * dest, uint8_t count)
-{
-    // To indicate a read, set bit 0 (msb) of first byte to 1
-    uint8_t rAddress = 0x80 | (subAddress & 0x3F);
-    // Mag SPI port is different. If we're reading multiple bytes, 
-    // set bit 1 to 1. The remaining six bytes are the address to be read
-    if ((csPin == _mAddress) && count > 1)
-        rAddress |= 0x40;
-
-    digitalWrite(csPin, LOW); // Initiate communication
-    SPI.transfer(rAddress);
-    for (int i=0; i<count; i++)
-    {
-        dest[i] = SPI.transfer(0x00); // Read into destination array
-    }
-    digitalWrite(csPin, HIGH); // Close communication
-
-    return count;
-}
+// TODO: Implement SPI
+// void LSM9DS1::initSPI()
+// {
+//     pinMode(_xgAddress, OUTPUT);
+//     digitalWrite(_xgAddress, HIGH);
+//     pinMode(_mAddress, OUTPUT);
+//     digitalWrite(_mAddress, HIGH);
+// 
+//     SPI.begin();
+//     // Maximum SPI frequency is 10MHz, could divide by 2 here:
+//     SPI.setClockDivider(SPI_CLOCK_DIV2);
+//     // Data is read and written MSb first.
+//     SPI.setBitOrder(MSBFIRST);
+//     // Data is captured on rising edge of clock (CPHA = 0)
+//     // Base value of the clock is HIGH (CPOL = 1)
+//     SPI.setDataMode(SPI_MODE0);
+// }
+// 
+// void LSM9DS1::SPIwriteByte(uint8_t csPin, uint8_t subAddress, uint8_t data)
+// {
+//     digitalWrite(csPin, LOW); // Initiate communication
+// 
+//     // If write, bit 0 (MSB) should be 0
+//     // If single write, bit 1 should be 0
+//     SPI.transfer(subAddress & 0x3F); // Send Address
+//     SPI.transfer(data); // Send data
+// 
+//     digitalWrite(csPin, HIGH); // Close communication
+// }
+// 
+// uint8_t LSM9DS1::SPIreadByte(uint8_t csPin, uint8_t subAddress)
+// {
+//     uint8_t temp;
+//     // Use the multiple read function to read 1 byte. 
+//     // Value is returned to `temp`.
+//     SPIreadBytes(csPin, subAddress, &temp, 1);
+//     return temp;
+// }
+// 
+// uint8_t LSM9DS1::SPIreadBytes(uint8_t csPin, uint8_t subAddress,
+//         uint8_t * dest, uint8_t count)
+// {
+//     // To indicate a read, set bit 0 (msb) of first byte to 1
+//     uint8_t rAddress = 0x80 | (subAddress & 0x3F);
+//     // Mag SPI port is different. If we're reading multiple bytes, 
+//     // set bit 1 to 1. The remaining six bytes are the address to be read
+//     if ((csPin == _mAddress) && count > 1)
+//         rAddress |= 0x40;
+// 
+//     digitalWrite(csPin, LOW); // Initiate communication
+//     SPI.transfer(rAddress);
+//     for (int i=0; i<count; i++)
+//     {
+//         dest[i] = SPI.transfer(0x00); // Read into destination array
+//     }
+//     digitalWrite(csPin, HIGH); // Close communication
+// 
+//     return count;
+// }
 
 void LSM9DS1::initI2C()
 {
-    Wire.begin();	// Initialize I2C library
+    // Initialize I2C library
+    i2cInit();
+    i2cSetMode(i2cREG1, I2C_MASTER);
 }
 
-// Wire.h read and write protocols
 void LSM9DS1::I2CwriteByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
-    Wire.beginTransmission(address);  // Initialize the Tx buffer
-    Wire.write(subAddress);           // Put slave register address in Tx buffer
-    Wire.write(data);                 // Put data in Tx buffer
-    Wire.endTransmission();           // Send the Tx buffer
+    // Initialize the Tx buffer
+    i2cSetSlaveAdd(i2cREG1, address);
+    i2cSetDirection(i2cREG1, I2C_TRANSMITTER);
+    i2cSetStop(i2cREG1);
+    i2cSetStart(i2cREG1);
+    // Put slave register address in Tx buffer
+    i2cSendByte(i2cREG1, subAddress);
+    // Put data in Tx buffer
+    i2cSendByte(i2cREG1, data);
+
+    // Send the Tx buffer
+    while(i2cIsBusBusy(i2cREG1));
+
+    while(!i2cIsStopDetected(i2cREG1));
 }
 
 uint8_t LSM9DS1::I2CreadByte(uint8_t address, uint8_t subAddress)
 {
-    uint8_t data; // `data` will store the register data	
+    uint8_t data; // `data` will store the register data
+    // Initialize the Tx buffer
+    i2cSetSlaveAdd(i2cREG1, address);
+    i2cSetDirection(i2cREG1, I2C_TRANSMITTER);
+    i2cSetStop(i2cREG1);
+    i2cSetStart(i2cREG1);
+    // Put slave register address in Tx buffer
+    i2cSendByte(i2cREG1, subAddress);
+    // Send the Tx buffer, but send a restart to keep connection alive
+    while(i2cIsBusBusy(i2cREG1));
 
-    Wire.beginTransmission(address);         // Initialize the Tx buffer
-    Wire.write(subAddress);	                 // Put slave register address in Tx buffer
-    Wire.endTransmission(false);             // Send the Tx buffer, but send a restart to keep connection alive
-    Wire.requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
+    while(!i2cIsStopDetected(i2cREG1));
 
-    data = Wire.read();                      // Fill Rx buffer with result
-    return data;                             // Return data read from slave register
+    i2cClearSCD(i2cREG1);
+
+    // Read one byte from slave register address
+    i2cSetDirection(i2cREG1, I2C_RECEIVER);
+    i2cSetStop(i2cREG1);
+    i2cSetStart(i2cREG1);
+    data = i2cReceiveByte(i2cREG1);
+    while(i2cIsBusBusy(i2cREG1));
+
+    while(!i2cIsStopDetected(i2cREG1));
+    i2cClearSCD(i2cREG1);
+
+    // Return data read from slave register
+    return data;
 }
 
 uint8_t LSM9DS1::I2CreadBytes(uint8_t address, uint8_t subAddress, uint8_t * dest, uint8_t count)
 {
-    byte retVal;
-    Wire.beginTransmission(address);      // Initialize the Tx buffer
+    // Initialize the Tx buffer
+    i2cSetSlaveAdd(i2cREG1, address);
+    i2cSetDirection(i2cREG1, I2C_TRANSMITTER);
+    i2cSetStop(i2cREG1);
+    i2cSetStart(i2cREG1);
     // Next send the register to be read. OR with 0x80 to indicate multi-read.
-    Wire.write(subAddress | 0x80);        // Put slave register address in Tx buffer
-    retVal = Wire.endTransmission(false); // Send Tx buffer, send a restart to keep connection alive
-    if (retVal != 0) // endTransmission should return 0 on success
-        return 0;
+    i2cSendByte(i2cREG1, subAddress | 0x80);
+    while(i2cIsBusBusy(i2cREG1));
 
-    retVal = Wire.requestFrom(address, count);  // Read bytes from slave register address 
-    if (retVal != count)
-        return 0;
+    while(!i2cIsStopDetected(i2cREG1));
 
-    for (int i=0; i<count;)
-        dest[i++] = Wire.read();
+    i2cClearSCD(i2cREG1);
 
-    return count;
+    i2cSetDirection(i2cREG1, I2C_RECEIVER);
+    i2cSetStop(i2cREG1);
+    i2cSetStart(i2cREG1);
+    i2cReceive(i2cREG1, count, dest);
+    while(i2cIsBusBusy(i2cREG1));
+
+    while(!i2cIsStopDetected(i2cREG1));
+
+    i2cClearSCD(i2cREG1);
+    return 1;
 }
