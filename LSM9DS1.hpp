@@ -18,7 +18,7 @@ Distributed as-is; no warranty is given.
 
 #include "LSM9DS1_Registers.h"
 #include "LSM9DS1_Types.h"
-#include "i2c.h"
+#include "I2C.hpp"
 
 #define LSM9DS1_AG_ADDR(sa0)	((sa0) == 0 ? 0x6A : 0x6B)
 #define LSM9DS1_M_ADDR(sa1)		((sa1) == 0 ? 0x1C : 0x1E)
@@ -57,7 +57,7 @@ class LSM9DS1
         // 				If IMU_MODE_SPI, this is the chip select pin of the gyro (CS_AG)
         //	- mAddr = If IMU_MODE_I2C, this is the I2C address of the magnetometer.
         //				If IMU_MODE_SPI, this is the cs pin of the magnetometer (CS_M)
-        LSM9DS1(interface_mode interface, uint8_t xgAddr, uint8_t mAddr);
+        LSM9DS1(I2C* i2c, uint8_t xgAddr, uint8_t mAddr);
         LSM9DS1();
 
         // begin() -- Initialize the gyro, accelerometer, and magnetometer.
@@ -338,7 +338,7 @@ class LSM9DS1
         //   select pin connected to the CS_XG pin.
         // - mAddr - Sets either the I2C address of the magnetometer or SPI chip 
         //   select pin connected to the CS_M pin.
-        void init(interface_mode interface, uint8_t xgAddr, uint8_t mAddr);
+        void init(I2C* i2c, uint8_t xgAddr, uint8_t mAddr);
 
         // initGyro() -- Sets up the gyroscope to begin reading.
         // This function steps through all five gyroscope control registers.
@@ -444,39 +444,6 @@ class LSM9DS1
         void constrainScales();
 
         ///////////////////
-        // SPI Functions //
-        ///////////////////
-        // initSPI() -- Initialize the SPI hardware.
-        // This function will setup all SPI pins and related hardware.
-        void initSPI();
-
-        // SPIwriteByte() -- Write a byte out of SPI to a register in the device
-        // Input:
-        //	- csPin = The chip select pin of the slave device.
-        //	- subAddress = The register to be written to.
-        //	- data = Byte to be written to the register.
-        void SPIwriteByte(uint8_t csPin, uint8_t subAddress, uint8_t data);
-
-        // SPIreadByte() -- Read a single byte from a register over SPI.
-        // Input:
-        //	- csPin = The chip select pin of the slave device.
-        //	- subAddress = The register to be read from.
-        // Output:
-        //	- The byte read from the requested address.
-        uint8_t SPIreadByte(uint8_t csPin, uint8_t subAddress);
-
-        // SPIreadBytes() -- Read a series of bytes, starting at a register via SPI
-        // Input:
-        //	- csPin = The chip select pin of a slave device.
-        //	- subAddress = The register to begin reading.
-        // 	- * dest = Pointer to an array where we'll store the readings.
-        //	- count = Number of registers to be read.
-        // Output: No value is returned by the function, but the registers read are
-        // 		all stored in the *dest array given.
-        uint8_t SPIreadBytes(uint8_t csPin, uint8_t subAddress, 
-                uint8_t * dest, uint8_t count);
-
-        ///////////////////
         // I2C Functions //
         ///////////////////
         // initI2C() -- Initialize the I2C hardware.
@@ -507,6 +474,8 @@ class LSM9DS1
         // Output: No value is returned by the function, but the registers read are
         // 		all stored in the *dest array given.
         uint8_t I2CreadBytes(uint8_t address, uint8_t subAddress, uint8_t * dest, uint8_t count);
+    private:
+        I2C* m_i2c;
 };
 
 #endif // SFE_LSM9DS1_H //
