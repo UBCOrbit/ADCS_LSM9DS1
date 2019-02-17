@@ -988,7 +988,7 @@ uint8_t LSM9DS1_I2CreadByte(uint8_t address, uint8_t subAddress)
 
 void LSM9DS1_I2CreadBytes(uint8_t address, uint8_t subAddress, uint8_t * dest, uint8_t count)
 {
-    uint8_t cmd = subAddress | 0x80;
+    uint8_t cmd = count > 1 ? subAddress | 0x80 : subAddress;
     I2C_receive(1, &cmd, count, dest, address);
 }
 
