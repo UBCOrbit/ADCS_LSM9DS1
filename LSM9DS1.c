@@ -136,18 +136,32 @@ uint16_t LSM9DS1_init(imu_t* imu, const imu_config_t* config)
 	// Now, initialize our hardware interface.
 	LSM9DS1_initI2C();
 
+	char debug_buffer[64];
+
+
 	// To verify communication, we can read from the WHO_AM_I register of
 	// each device. Store those in a variable so we can return them.
 	//NRF_LOG("Read whoami for M\n");
+	sprintf(debug_buffer, "Read whoami for M\n");
+	sciSafeSend(scilinREG, strlen(debug_buffer), debug_buffer);
 	uint8_t mTest = LSM9DS1_mReadByte(imu, WHO_AM_I_M);		// Read the gyro WHO_AM_I
 	//NRF_LOG_PRINTF("Got %02x\n", mTest);
+	sprintf(debug_buffer, "Got %02x\n", mTest);
+	sciSafeSend(scilinREG, strlen(debug_buffer), debug_buffer);
+
 	//NRF_LOG("Read whoami for XG\n");
+    sprintf(debug_buffer, "Read whoami for XG\n");
+    sciSafeSend(scilinREG, strlen(debug_buffer), debug_buffer);
 	uint8_t xgTest = LSM9DS1_xgReadByte(imu, WHO_AM_I_XG);	// Read the accel/mag WHO_AM_I
 	//NRF_LOG_PRINTF("Got %02x\n", xgTest);
+	sprintf(debug_buffer, "Got %02x\n", xgTest);
+	sciSafeSend(scilinREG, strlen(debug_buffer), debug_buffer);
 	uint16_t whoAmICombined = (xgTest << 8) | mTest;
 
 	if (whoAmICombined != ((WHO_AM_I_AG_RSP << 8) | WHO_AM_I_M_RSP)) {
 		//NRF_LOG("Couldn't make sense of output!\n");
+	    sprintf(debug_buffer, "Couldn't make sense of output\n");
+	    sciSafeSend(scilinREG, strlen(debug_buffer), debug_buffer);
 		return 0;
 	}
 
