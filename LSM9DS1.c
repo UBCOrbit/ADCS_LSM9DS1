@@ -39,7 +39,7 @@ const float magSensitivity[4] = {0.00014, 0.00029, 0.00043, 0.00058};
 uint16_t LSM9DS1_init(imu_t* imu, const imu_config_t* config)
 {
 	imu->settings.device.agAddress = LSM9DS1_AG_ADDR(1);
-	imu->settings.device.mAddress = LSM9DS1_M_ADDR(2);
+	imu->settings.device.mAddress = LSM9DS1_M_ADDR(1);
 
 	imu->settings.gyro.enabled = config->enable_gyro;
 	imu->settings.gyro.enableX = config->enable_gyro;
